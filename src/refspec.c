@@ -208,12 +208,28 @@ int git_refspec_force(const git_refspec *refspec)
 	return refspec->force;
 }
 
+int git_refspec_src_matches_negative(const git_refspec *refspec, const char *refname)
+{
+	if (refspec == NULL || refspec->src == NULL || !git_refspec_is_negative(refspec))
+		return false;
+
+	return (wildmatch(refspec->src + 1, refname, 0) == 0);
+}
+
 int git_refspec_src_matches(const git_refspec *refspec, const char *refname)
 {
 	if (refspec == NULL || refspec->src == NULL)
 		return false;
 
 	return (wildmatch(refspec->src, refname, 0) == 0);
+}
+
+int git_refspec_is_negative(const git_refspec *spec)
+{
+	GIT_ASSERT_ARG(spec);
+	GIT_ASSERT_ARG(spec->src);
+
+	return (spec->src[0] == '^' && spec->dst == NULL);
 }
 
 int git_refspec_dst_matches(const git_refspec *refspec, const char *refname)
